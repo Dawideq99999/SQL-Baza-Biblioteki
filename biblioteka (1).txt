@@ -1,0 +1,197 @@
+-- stworzenie i uzycie bazy danych
+create database biblioteka;
+go
+use biblioteka;
+
+-- stworzenie tabel
+create table ksiazki (
+	id int primary key,
+	tytul varchar (100) not null, 
+	autor_id int not null,
+	wydawnictwo_id int not null,
+	cena decimal (5, 2) not null
+);
+
+create table autorzy (
+	id int primary key,
+	autor_imie varchar (50) not null,
+	autor_nazwisko varchar (100) not null
+);
+go
+
+create table wydawnictwa (
+	id int primary key,
+	wydawnictwo_nazwa varchar (100) not null
+);
+go
+
+create table klienci (
+	id int primary key,
+	klient_imie varchar (50) not null,
+	klient_nazwisko varchar (100) not null,
+	nazwa_uzytkownika varchar (100),
+	email varchar (100),
+	zamowienie_id int
+);
+go
+
+create table zamowienia (
+	id int not null,
+	ksiazka_id int not null,
+	klient_id int not null,
+	data_zamowienia date not null,
+	data_zrealizowania date,
+	status_zamowienia varchar (50) not null,
+	status_platnosci varchar (50) not null,
+	wartosc_zamowienia decimal (9, 2) not null,
+);
+go
+
+create table statusy_zamowienia (
+	status_zamowienia_nazwa varchar (50) primary key
+);
+go
+
+create table statusy_platnosci (
+	status_platnosci_nazwa varchar (50) primary key
+);
+go
+
+-- dodanie relacji 
+alter table ksiazki
+add foreign key (autor_id) references autorzy (id)
+on update no action on delete no action;
+go
+
+alter table ksiazki
+add foreign key (wydawnictwo_id) references wydawnictwa (id)
+on update no action on delete no action;
+go
+
+alter table zamowienia
+add foreign key (klient_id) references klienci (id)
+on update no action on delete no action;
+go
+
+alter table zamowienia
+add foreign key (ksiazka_id) references ksiazki (id)
+on update no action on delete no action;
+go
+
+alter table zamowienia
+add foreign key (status_zamowienia) references statusy_zamowienia (status_zamowienia_nazwa)
+on update no action on delete no action;
+go
+
+alter table zamowienia
+add foreign key (status_platnosci) references statusy_platnosci (status_platnosci_nazwa)
+on update no action on delete no action;
+go
+
+-- uzupelnienie danymi
+
+insert into wydawnictwa (id, wydawnictwo_nazwa) values 
+(1, 'Media Rodzina'),
+(2, 'Zysk i S-ka'),
+(3, 'Supernowa'),
+(4, 'Iskry'),
+(5, 'Vesper'),
+(6, 'Literackie'),
+(7, 'Albatros');
+
+insert into autorzy (id, autor_imie, autor_nazwisko) values 
+(1, 'Joanne', 'Rowling'),
+(2, 'Suzanne', 'Collins'),
+(3, 'George', 'Martin'),
+(4, 'Andrzej', 'Sapkowski'),
+(5, 'John', 'Tolkien'),
+(6, 'Artur', 'Urbanowicz'),
+(7, 'Yuval', 'Harari'),
+(8, 'Stephen', 'King'),
+(9, 'Howard', 'Lovecraft');
+
+insert into ksiazki (id, tytul, autor_id, wydawnictwo_id, cena) values 
+(1, 'Harry Potter', 1, 1, 29.99),
+(2, 'Igrzyska Śmierci', 2, 1, 34.99),
+(3, 'Gra o Tron', 3, 2, 44.99),
+(4, 'Wiedźmin', 4, 3, 24.99),
+(5, 'Władca Pierścieni', 5, 2, 23.99),
+(6, 'Hobbit', 5, 4, 19.99),
+(7, 'Zew Cthulhu', 9, 5, 22.99),
+(8, 'Inkub', 6, 5, 39.99),
+(9, 'Sapiens', 7, 6, 59.99),
+(10, 'Instytut', 8, 7, 34.99),
+(11, 'Lśnienie', 8, 7, 24.99);
+
+insert into klienci (id, klient_imie, klient_nazwisko, nazwa_uzytkownika, email, zamowienie_id) values
+(1, 'Daniel', 'Sowa', 'sowik', 'sowa@onet.pl', 2),
+(2, 'Józef', 'Baran', 'jbaran', 'jbaran@wp.pl', 5),
+(3, 'Klaudia', 'Myśliwek', 'klaudinek3', 'klaudiaamys@interia.pl', 1),
+(4, 'Weronika', 'Mazur', 'mazurek', 'weronika.mazur@wp.pl', 4),
+(5, 'Aleksandra', 'Kwiecień', 'kwiecionekal', 'kwiecionek@onet.pl', 6),
+(6, 'Mateusz', 'Woźniak', 'wwozniak', 'wwozniak@gmail.com', 3);
+
+insert into statusy_zamowienia (status_zamowienia_nazwa) values
+('złożone'),
+('w trakcie realizacji'),
+('zrealizowane');
+
+insert into statusy_platnosci (status_platnosci_nazwa) values
+('nieopłacone'),
+('opłacone'),
+('raty');
+
+insert into zamowienia (id, klient_id, ksiazka_id, data_zamowienia, data_zrealizowania, status_zamowienia, status_platnosci, wartosc_zamowienia) values
+(1, 3, 11, '2023-01-20', null, 'w trakcie realizacji', 'opłacone', 69.98),
+(1, 3, 3, '2023-01-20', null, 'w trakcie realizacji', 'opłacone', 69.98),
+(2, 1, 6, '2023-01-22', null, 'złożone', 'nieopłacone', 19.99),
+(3, 6, 1, '2023-01-18', null, 'w trakcie realizacji', 'raty', 64.98),
+(3, 6, 2, '2023-01-18', null, 'w trakcie realizacji', 'raty', 64.98),
+(4, 4, 4, '2023-01-16', '2023-01-22', 'zrealizowane', 'opłacone', 24.99),
+(5, 2, 10, '2023-01-21', null, 'złożone', 'opłacone', 34.99),
+(6, 5, 3, '2023-01-17', '2023-01-23', 'zrealizowane', 'opłacone', 44.99);
+
+-- zwrocenie wszystkich rekordow ze wszystkich tabel z bazy danych
+select * from autorzy;
+select * from klienci;
+select * from ksiazki; 
+select * from statusy_platnosci;
+select * from statusy_zamowienia;
+select * from wydawnictwa;
+select * from zamowienia;
+
+-- zwrocenie wszystkich ksiazkek wraz z odpowiadajacymi im autorami i wydawnictwami
+select k.tytul, k.cena, a.autor_imie, a.autor_nazwisko, w.wydawnictwo_nazwa from ksiazki k
+join autorzy a on k.autor_id = a.id
+join wydawnictwa w on k.wydawnictwo_id = w.id;
+
+-- zwrocenie ksiazek wraz z odpowiadajacymi im autorami i wydawnictwami, ktorych cena jest mniejsza niz 24 zl. posortowane malejaco wedlug ceny
+select k.tytul, k.cena, a.autor_imie, a.autor_nazwisko, w.wydawnictwo_nazwa from ksiazki k
+join autorzy a on k.autor_id = a.id
+join wydawnictwa w on k.wydawnictwo_id = w.id
+where cena < 24.00
+order by cena desc;
+
+-- zwrocenie wszystkich zamowien wraz z odpowiadajacymi im emailami i nazwami uzytkownika klientow oraz statusami zamowienia i platnosci
+select z.id, z.data_zamowienia, z.data_zrealizowania, k.nazwa_uzytkownika, k.email, sz.status_zamowienia_nazwa, sp.status_platnosci_nazwa from zamowienia z
+join klienci k on z.klient_id = k.id
+join statusy_platnosci sp on z.status_platnosci = sp.status_platnosci_nazwa
+join statusy_zamowienia sz on z.status_zamowienia = sz.status_zamowienia_nazwa;
+
+-- zwrocenie zamowien zrealizowanych wraz z odpowiadajacymi im emailami i nazwami uzytkownika klientow. posortowane rosnaco wedlug daty zamowienia
+select z.id, z.data_zamowienia, z.data_zrealizowania, k.nazwa_uzytkownika, k.email from zamowienia z
+join klienci k on z.klient_id = k.id
+where data_zrealizowania is not null
+order by data_zamowienia asc;
+
+-- zwrocenie liczby ksiazek dla danego autora. pogrupowanie po imieniu i nazwisku autora. posortowane po nazwisku autora
+select a.autor_imie, a.autor_nazwisko, count(k.autor_id) as liczba_ksiazek from ksiazki k
+join autorzy a on k.autor_id = a.id
+group by a.autor_imie, a.autor_nazwisko
+order by a.autor_nazwisko desc;
+
+-- zwrocenie liczby ksiazek dla danego wydawnictwa. pogrupowanie i posortowane po nazwie wydawnicrtwa
+select w.wydawnictwo_nazwa, count(k.wydawnictwo_id) as liczba_ksiazek from wydawnictwa w
+join ksiazki k on w.id = k.wydawnictwo_id
+group by w.wydawnictwo_nazwa
+order by w.wydawnictwo_nazwa;
